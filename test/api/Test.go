@@ -33,7 +33,7 @@ func (test *Test) CreateClient() (err error) {
 		tlsConfig = nil
 	}
 
-	test._client, err = pxapi.NewClient(test.APIurl, nil, test.HttpHeaders, tlsConfig, "", 300)
+	test._client, err = pxapi.NewClient(test.APIurl, nil, test.HttpHeaders, tlsConfig, "", 300, "", "", "")
 	return err
 }
 

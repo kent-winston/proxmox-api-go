@@ -114,10 +114,12 @@ type LoginTest struct {
 	OTP         string
 	HttpHeaders string
 	ReqErr      bool //if an error is expected as output
+	ApiKeyId    string
+	ApiKeyValue string
 }
 
 func (test *LoginTest) Login(t *testing.T) {
-	_, err := cli.Client(test.APIurl, test.UserID, test.Password, test.OTP, test.HttpHeaders)
+	_, err := cli.Client(test.APIurl, test.UserID, test.Password, test.OTP, test.HttpHeaders, test.ApiKeyId, test.ApiKeyValue)
 	if test.ReqErr {
 		require.Error(t, err)
 	} else {

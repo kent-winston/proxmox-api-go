@@ -33,6 +33,8 @@ type Client struct {
 	Password     string
 	Otp          string
 	TaskTimeout  int
+	ApiKeyId     string
+	ApiKeyValue  string
 	version      *Version
 	versionMutex *sync.Mutex
 }
@@ -104,15 +106,15 @@ func NewVmRef(vmId int) (vmr *VmRef) {
 	return
 }
 
-func NewClient(apiUrl string, hclient *http.Client, http_headers string, tls *tls.Config, proxyString string, taskTimeout int) (client *Client, err error) {
+func NewClient(apiUrl string, hclient *http.Client, http_headers string, tls *tls.Config, proxyString string, taskTimeout int, username string, apiKeyId string, apiKeyValue string) (client *Client, err error) {
 	var sess *Session
-	sess, err_s := NewSession(apiUrl, hclient, proxyString, tls)
+	sess, err_s := NewSession(apiUrl, hclient, proxyString, tls, username, apiKeyId, apiKeyValue)
 	sess, err = createHeaderList(http_headers, sess)
 	if err != nil {
 		return nil, err
 	}
 	if err_s == nil {
-		client = &Client{session: sess, ApiUrl: apiUrl, TaskTimeout: taskTimeout, versionMutex: &sync.Mutex{}}
+		client = &Client{session: sess, ApiUrl: apiUrl, Username: username, TaskTimeout: taskTimeout, ApiKeyId: apiKeyId, ApiKeyValue: apiKeyValue, versionMutex: &sync.Mutex{}}
 	}
 
 	return client, err_s

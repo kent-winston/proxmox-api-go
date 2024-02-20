@@ -45,13 +45,13 @@ func loadAppConfig() AppConfig {
 	}
 }
 
-func initializeProxmoxClient(config AppConfig, insecure bool, proxyURL string, taskTimeout int) (*proxmox.Client, error) {
+func initializeProxmoxClient(config AppConfig, insecure bool, proxyURL string, taskTimeout int, username string, apiKeyId string, apiKeyValue string) (*proxmox.Client, error) {
 	tlsconf := &tls.Config{InsecureSkipVerify: insecure}
 	if !insecure {
 		tlsconf = nil
 	}
 
-	client, err := proxmox.NewClient(config.APIURL, nil, config.HTTPHeaders, tlsconf, proxyURL, taskTimeout)
+	client, err := proxmox.NewClient(config.APIURL, nil, config.HTTPHeaders, tlsconf, proxyURL, taskTimeout, username, apiKeyId, apiKeyValue)
 	if err != nil {
 		return nil, err
 	}
@@ -91,10 +91,13 @@ func main() {
 	taskTimeout := flag.Int("timeout", 300, "API task timeout in seconds")
 	proxyURL := flag.String("proxy", "", "proxy URL to connect to")
 	fvmid := flag.Int("vmid", -1, "custom VMID (instead of auto)")
+	username := flag.String("username", "", "Username")
+	apiKeyId := flag.String("apiKeyId", "", "API Key ID")
+	apiKeyValue := flag.String("apiKeyValue", "", "API Key Value")
 	flag.Parse()
 
 	// Initialize Proxmox client
-	c, err := initializeProxmoxClient(config, *insecure, *proxyURL, *taskTimeout)
+	c, err := initializeProxmoxClient(config, *insecure, *proxyURL, *taskTimeout, *username, *apiKeyId, *apiKeyValue)
 	if err != nil {
 		log.Fatalf("Failed to initialize Proxmox client: %v", err)
 	}

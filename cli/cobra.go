@@ -33,12 +33,12 @@ func Execute() (err error) {
 }
 
 func NewClient() (c *proxmox.Client) {
-	c, err := Client("", "", "", "", "")
+	c, err := Client("", "", "", "", "", "", "")
 	LogFatalError(err)
 	return
 }
 
-func Client(apiUrl, userID, password, otp string, http_headers string) (c *proxmox.Client, err error) {
+func Client(apiUrl, userID, password, otp string, http_headers string, apiKeyId string, apiKeyValue string) (c *proxmox.Client, err error) {
 	insecure, _ := RootCmd.Flags().GetBool("insecure")
 	timeout, _ := RootCmd.Flags().GetInt("timeout")
 	proxyUrl, _ := RootCmd.Flags().GetString("proxyurl")
@@ -62,7 +62,7 @@ func Client(apiUrl, userID, password, otp string, http_headers string) (c *proxm
 	if http_headers == "" {
 		http_headers = os.Getenv("PM_HTTP_HEADERS")
 	}
-	c, err = proxmox.NewClient(apiUrl, nil, http_headers, tlsConf, proxyUrl, timeout)
+	c, err = proxmox.NewClient(apiUrl, nil, http_headers, tlsConf, proxyUrl, timeout, userID, apiKeyId, apiKeyValue)
 	LogFatalError(err)
 	if userRequiresAPIToken(userID) {
 		c.SetAPIToken(userID, password)

@@ -25,15 +25,18 @@ type Response struct {
 }
 
 type Session struct {
-	httpClient *http.Client
-	ApiUrl     string
-	AuthTicket string
-	CsrfToken  string
-	AuthToken  string // Combination of user, realm, token ID and UUID
-	Headers    http.Header
+	httpClient  *http.Client
+	ApiUrl      string
+	AuthTicket  string
+	CsrfToken   string
+	AuthToken   string // Combination of user, realm, token ID and UUID
+	Username    string
+	ApiKeyId    string
+	ApiKeyValue string
+	Headers     http.Header
 }
 
-func NewSession(apiUrl string, hclient *http.Client, proxyString string, tls *tls.Config) (session *Session, err error) {
+func NewSession(apiUrl string, hclient *http.Client, proxyString string, tls *tls.Config, username string, apiKeyId string, apiKeyValue string) (session *Session, err error) {
 	if hclient == nil {
 		if proxyString == "" {
 			tr := &http.Transport{
@@ -61,11 +64,14 @@ func NewSession(apiUrl string, hclient *http.Client, proxyString string, tls *tl
 		}
 	}
 	session = &Session{
-		httpClient: hclient,
-		ApiUrl:     apiUrl,
-		AuthTicket: "",
-		CsrfToken:  "",
-		Headers:    http.Header{},
+		httpClient:  hclient,
+		ApiUrl:      apiUrl,
+		AuthTicket:  "",
+		CsrfToken:   "",
+		Username:    username,
+		ApiKeyId:    apiKeyId,
+		ApiKeyValue: apiKeyValue,
+		Headers:     http.Header{},
 	}
 	return session, nil
 }
@@ -208,12 +214,13 @@ func (s *Session) NewRequest(method, url string, headers *http.Header, body io.R
 	if headers != nil {
 		req.Header = *headers
 	}
-	if s.AuthToken != "" {
-		req.Header["Authorization"] = []string{"PVEAPIToken=" + s.AuthToken}
-	} else if s.AuthTicket != "" {
-		req.Header["Authorization"] = []string{"PVEAuthCookie=" + s.AuthTicket}
-		req.Header["CSRFPreventionToken"] = []string{s.CsrfToken}
-	}
+	req.Header["Authorization"] = []string{fmt.Sprintf("PVEAPIToken=%s!%s=%s", s.Username, s.ApiKeyId, s.ApiKeyValue)}
+	// if s.AuthToken != "" {
+	// 	req.Header["Authorization"] = []string{"PVEAPIToken=" + s.AuthToken}
+	// } else if s.AuthTicket != "" {
+	// 	req.Header["Authorization"] = []string{"PVEAuthCookie=" + s.AuthTicket}
+	// 	req.Header["CSRFPreventionToken"] = []string{s.CsrfToken}
+	// }
 	return
 }
 
